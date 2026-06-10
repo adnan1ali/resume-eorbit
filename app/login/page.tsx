@@ -1,0 +1,280 @@
+'use client';
+
+import { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import {
+  Mail, Lock, Eye, EyeOff, ArrowRight, Loader2,
+  Shield, Sparkles, CheckCircle, AlertCircle, Zap,
+  Users, FileText, Target
+} from 'lucide-react';
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [focused, setFocused] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const res = await signIn('credentials', { email, password, redirect: false });
+      if (res?.error) {
+        setError('Invalid email or password. Please try again.');
+        setLoading(false);
+      } else {
+        router.push('/dashboard');
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const isEmailValid = email.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  return (
+    <div className="min-h-screen flex">
+      {/* ============================================================
+          LEFT PANEL — Branding & Trust Signals (hidden on mobile)
+          ============================================================ */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 h-64 w-64 rounded-full bg-white blur-3xl" />
+          <div className="absolute bottom-20 right-20 h-48 w-48 rounded-full bg-white blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-80 rounded-full bg-white blur-3xl" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
+          {/* Logo */}
+          <div>
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-black tracking-tight">Resume eOrbit</span>
+            </Link>
+          </div>
+
+          {/* Main message */}
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-3xl font-black tracking-tight leading-tight">
+                Welcome back to your<br />career command center.
+              </h2>
+              <p className="text-white/70 mt-3 text-sm leading-relaxed max-w-md">
+                Continue building ATS-optimized resumes that get you interviews. Your career journey is just one login away.
+              </p>
+            </div>
+
+            {/* Trust signals */}
+            <div className="space-y-4">
+              {[
+                { icon: Users, text: '50,000+ professionals trust Resume eOrbit' },
+                { icon: Shield, text: 'ATS-optimized templates that pass 98% of systems' },
+                { icon: Target, text: '3x more interview callbacks on average' },
+              ].map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + idx * 0.15, duration: 0.4 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="h-8 w-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10 flex-shrink-0">
+                    <item.icon className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm text-white/80">{item.text}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <p className="text-xs text-white/40">
+            Trusted by professionals in India, UAE, Saudi Arabia, and 15+ countries.
+          </p>
+        </div>
+      </div>
+
+      {/* ============================================================
+          RIGHT PANEL — Login Form
+          ============================================================ */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white dark:bg-slate-950">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-sm"
+        >
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8 text-center">
+            <Link href="/" className="inline-flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-black tracking-tight text-slate-900 dark:text-white">Resume eOrbit</span>
+            </Link>
+          </div>
+
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+              Sign in to your account
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
+              Enter your credentials to access your dashboard.
+            </p>
+          </div>
+
+          {/* Error message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-5 p-3.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200/60 dark:border-rose-800/40 rounded-xl flex items-start gap-2.5"
+            >
+              <AlertCircle className="h-4 w-4 text-rose-500 flex-shrink-0 mt-0.5" />
+              <p className="text-xs font-medium text-rose-700 dark:text-rose-300">{error}</p>
+            </motion.div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Email Address
+              </label>
+              <div className={`relative rounded-xl border transition-all duration-200 ${
+                focused === 'email'
+                  ? 'border-indigo-500 ring-2 ring-indigo-500/20'
+                  : !isEmailValid
+                  ? 'border-rose-300 dark:border-rose-800'
+                  : 'border-slate-200 dark:border-slate-800'
+              }`}>
+                <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${
+                  focused === 'email' ? 'text-indigo-500' : 'text-slate-400'
+                }`} />
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  onFocus={() => setFocused('email')}
+                  onBlur={() => setFocused(null)}
+                  className="w-full pl-10 pr-4 py-3 text-sm font-medium bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 outline-none rounded-xl"
+                  required
+                />
+                {email && isEmailValid && (
+                  <CheckCircle className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
+                )}
+              </div>
+              {!isEmailValid && (
+                <p className="text-[10px] text-rose-500 font-medium pl-1">Please enter a valid email address.</p>
+              )}
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Password
+                </label>
+                <Link href="/forgot-password" className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">
+                  Forgot password?
+                </Link>
+              </div>
+              <div className={`relative rounded-xl border transition-all duration-200 ${
+                focused === 'password'
+                  ? 'border-indigo-500 ring-2 ring-indigo-500/20'
+                  : 'border-slate-200 dark:border-slate-800'
+              }`}>
+                <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${
+                  focused === 'password' ? 'text-indigo-500' : 'text-slate-400'
+                }`} />
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onFocus={() => setFocused('password')}
+                  onBlur={() => setFocused(null)}
+                  className="w-full pl-10 pr-11 py-3 text-sm font-medium bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 outline-none rounded-xl"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading || !email || !password}
+              className={`w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 ${
+                loading || !email || !password
+                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30'
+              }`}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white dark:bg-slate-950 px-3 text-slate-400 font-medium">or</span>
+            </div>
+          </div>
+
+          {/* Register Link */}
+          <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+            Don't have an account?{' '}
+            <Link href="/register" className="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">
+              Create one free
+            </Link>
+          </p>
+
+          {/* Trust footer */}
+          <div className="mt-8 pt-6 border-t border-slate-200/60 dark:border-slate-800/60">
+            <div className="flex items-center justify-center gap-4 text-[10px] text-slate-400">
+              <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Secure</span>
+              <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> Fast</span>
+              <span className="flex items-center gap-1"><FileText className="h-3 w-3" /> Free Plan</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}

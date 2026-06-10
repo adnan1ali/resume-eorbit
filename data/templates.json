@@ -1,0 +1,29 @@
+{
+  "templates": [
+    { "id": "modern-1", "name": "Modern Blue", "category": "Modern", "thumbnail": "/templates/modern-blue.jpg", "style": "clean", "color": "#3b82f6" },
+    { "id": "modern-2", "name": "Modern Gray", "category": "Modern", "thumbnail": "/templates/modern-gray.jpg", "style": "clean", "color": "#6b7280" },
+    { "id": "executive-1", "name": "Executive Classic", "category": "Executive", "thumbnail": "/templates/executive-classic.jpg", "style": "formal", "color": "#1e293b" },
+    { "id": "executive-2", "name": "Executive Minimal", "category": "Executive", "thumbnail": "/templates/executive-minimal.jpg", "style": "minimal", "color": "#0f172a" },
+    { "id": "creative-1", "name": "Creative Bold", "category": "Creative", "thumbnail": "/templates/creative-bold.jpg", "style": "colorful", "color": "#ec4899" },
+    { "id": "creative-2", "name": "Creative Split", "category": "Creative", "thumbnail": "/templates/creative-split.jpg", "style": "modern", "color": "#8b5cf6" },
+    { "id": "gcc-1", "name": "GCC Professional", "category": "GCC", "thumbnail": "/templates/gcc-professional.jpg", "style": "formal", "color": "#0ea5e9" },
+    { "id": "gcc-2", "name": "Saudi Executive", "category": "GCC", "thumbnail": "/templates/saudi-executive.jpg", "style": "luxury", "color": "#d97706" },
+    { "id": "corporate-1", "name": "Corporate Clean", "category": "Corporate", "thumbnail": "/templates/corporate-clean.jpg", "style": "professional", "color": "#2dd4bf" },
+    { "id": "corporate-2", "name": "Corporate Dark", "category": "Corporate", "thumbnail": "/templates/corporate-dark.jpg", "style": "elegant", "color": "#111827" },
+    { "id": "tech-1", "name": "Tech Startup", "category": "Tech", "thumbnail": "/templates/tech-startup.jpg", "style": "innovative", "color": "#06b6d4" },
+    { "id": "tech-2", "name": "Data Scientist", "category": "Tech", "thumbnail": "/templates/data-scientist.jpg", "style": "analytical", "color": "#10b981" },
+    { "id": "healthcare-1", "name": "Medical Professional", "category": "Healthcare", "thumbnail": "/templates/medical.jpg", "style": "clean", "color": "#14b8a6" },
+    { "id": "education-1", "name": "Academic CV", "category": "Education", "thumbnail": "/templates/academic.jpg", "style": "formal", "color": "#6366f1" },
+    { "id": "finance-1", "name": "Banking & Finance", "category": "Finance", "thumbnail": "/templates/finance.jpg", "style": "conservative", "color": "#334155" },
+    { "id": "sales-1", "name": "Sales Achiever", "category": "Sales", "thumbnail": "/templates/sales.jpg", "style": "results", "color": "#f97316" },
+    { "id": "hr-1", "name": "Human Resources", "category": "HR", "thumbnail": "/templates/hr.jpg", "style": "people-focused", "color": "#a855f7" },
+    { "id": "legal-1", "name": "Legal Counsel", "category": "Legal", "thumbnail": "/templates/legal.jpg", "style": "prestigious", "color": "#78716c" },
+    { "id": "engineering-1", "name": "Engineering Lead", "category": "Engineering", "thumbnail": "/templates/engineering.jpg", "style": "technical", "color": "#ef4444" },
+    { "id": "design-1", "name": "Creative Designer", "category": "Design", "thumbnail": "/templates/designer.jpg", "style": "artistic", "color": "#d946ef" },
+    { "id": "entry-1", "name": "Entry Level", "category": "Entry Level", "thumbnail": "/templates/entry-level.jpg", "style": "simple", "color": "#14b8a6" },
+    { "id": "executive-3", "name": "Board Member", "category": "Executive", "thumbnail": "/templates/board-member.jpg", "style": "premium", "color": "#b45309" },
+    { "id": "modern-3", "name": "Modern Sidebar", "category": "Modern", "thumbnail": "/templates/modern-sidebar.jpg", "style": "two-column", "color": "#0ea5e9" },
+    { "id": "creative-3", "name": "Portfolio Style", "category": "Creative", "thumbnail": "/templates/portfolio.jpg", "style": "visual", "color": "#c2410c" },
+    { "id": "gcc-3", "name": "UAE Executive", "category": "GCC", "thumbnail": "/templates/uae-executive.jpg", "style": "modern", "color": "#0284c7" }
+  ]
+}
