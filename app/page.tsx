@@ -11,6 +11,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
+import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import {
   ArrowRight, Brain, BarChart3, FileSearch, Layers, Zap, BadgeCheck, Check,
@@ -19,7 +20,6 @@ import {
   Upload, MousePointerClick, Cpu, LineChart, BookOpen, MessageSquare,
   ArrowUpRight, Play, Quote, Minus, Plus
 } from 'lucide-react';
-
 // ============================================================
 // ANIMATION VARIANTS
 // ============================================================

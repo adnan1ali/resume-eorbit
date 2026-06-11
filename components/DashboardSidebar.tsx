@@ -41,55 +41,54 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Overview',
     items: [
-      { href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/app/resumes', label: 'My Resumes', icon: FileText },
+      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/dashboard#resumes', label: 'My Resumes', icon: FileText },
     ],
   },
   {
     title: 'Create',
     items: [
-      { href: '/app/builder', label: 'Resume Builder', icon: PenTool },
-      { href: '/app/ats-scanner', label: 'ATS Scanner', icon: BarChart3 },
-      { href: '/app/ats-reports', label: 'ATS Reports', icon: ClipboardList },
-      { href: '/app/templates', label: 'Templates', icon: Layers },
+      { href: '/cv-builder', label: 'Resume Builder', icon: PenTool },
+      { href: '/ats-scanner', label: 'ATS Scanner', icon: BarChart3 },
+     { href: '/ats-reports', label: 'ATS Reports', icon: ClipboardList },
+      { href: '/templates', label: 'Templates', icon: Layers },
     ],
   },
   {
     title: 'Job Search',
     items: [
-      { href: '/app/jobs', label: 'Job Matches', icon: Briefcase, isPro: true },
-      { href: '/app/tracker', label: 'Application Tracker', icon: KanbanSquare },
-      { href: '/app/cover-letters', label: 'Cover Letter Generator', icon: Mail, isPro: true },
+      { href: '#', label: 'Job Matches', icon: Briefcase, isPro: true },
+      { href: '#', label: 'Application Tracker', icon: KanbanSquare },
+      { href: '#', label: 'Cover Letter Generator', icon: Mail, isPro: true },
     ],
   },
   {
     title: 'Career Growth',
     items: [
-      { href: '/app/interview-coach', label: 'Interview Coach', icon: Mic, isPro: true },
-      { href: '/app/career-roadmap', label: 'Career Roadmap', icon: Map, isPro: true },
-      { href: '/app/career-health', label: 'Career Health', icon: Heart },
-      { href: '/app/salary-insights', label: 'Salary Insights', icon: DollarSign, isPro: true },
-      { href: '/app/skill-gap', label: 'Skill Gap Analysis', icon: TrendingUp },
+      { href: '#', label: 'Interview Coach', icon: Mic, isPro: true },
+      { href: '#', label: 'Career Roadmap', icon: Map, isPro: true },
+      { href: '#', label: 'Career Health', icon: Heart },
+      { href: '#', label: 'Salary Insights', icon: DollarSign, isPro: true },
+      { href: '#', label: 'Skill Gap Analysis', icon: TrendingUp },
     ],
   },
   {
     title: 'Learning',
     items: [
-      { href: '/app/learning', label: 'Learning Hub', icon: BookOpen },
-      { href: '/app/certificates', label: 'Certificates', icon: Award },
-      { href: '/app/bookmarks', label: 'Bookmarks', icon: Bookmark },
+      { href: '#', label: 'Learning Hub', icon: BookOpen },
+      { href: '#', label: 'Certificates', icon: Award },
+      { href: '#', label: 'Bookmarks', icon: Bookmark },
     ],
   },
   {
     title: 'Account',
     items: [
-      { href: '/app/subscription', label: 'Subscription', icon: CreditCard },
-      { href: '/app/settings', label: 'Profile Settings', icon: Settings },
-      { href: '/app/support', label: 'Support', icon: HelpCircle },
+      { href: '#', label: 'Subscription', icon: CreditCard },
+      { href: '#', label: 'Profile Settings', icon: Settings },
+      { href: '#', label: 'Support', icon: HelpCircle },
     ],
   },
 ];
-
 // ============================================================
 // SIDEBAR COMPONENT
 // ============================================================
@@ -132,9 +131,9 @@ export function DashboardSidebar() {
               </p>
             )}
             <div className="space-y-0.5">
-              {group.items.map((item) => (
+{group.items.map((item, index) => (
                 <Link
-                  key={item.href}
+                 key={`${item.href}-${index}`}
                   href={item.href}
                   className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 group relative ${
                     isActive(item.href)
