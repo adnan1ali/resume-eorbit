@@ -1,9 +1,17 @@
 ﻿'use client';
 
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+  useInView,
+  type Variants
+} from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   ArrowRight, Brain, BarChart3, FileSearch, Layers, Zap, BadgeCheck, Check,
   CheckCircle2, Sparkles, Target, TrendingUp, Users, Globe, Shield,
@@ -11,53 +19,94 @@ import {
   Upload, MousePointerClick, Cpu, LineChart, BookOpen, MessageSquare,
   ArrowUpRight, Play, Quote, Minus, Plus
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 // ============================================================
 // ANIMATION VARIANTS
 // ============================================================
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+const fadeInUp: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 30,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+    },
+  },
 };
 
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.5 } }
+const fadeIn: Variants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.5,
+    },
+  },
 };
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } }
+const staggerContainer: Variants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
 };
 
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }
+const scaleIn: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.9,
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+    },
+  },
 };
-
 // ============================================================
 // REUSABLE SECTION WRAPPER WITH SCROLL ANIMATION
 // ============================================================
 
-function AnimatedSection({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+function AnimatedSection({
+  children,
+  className = '',
+  delay = 0,
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  id?: string;
+}) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
     <motion.section
+      id={id}
       ref={ref}
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
+      transition={{ duration: 0.7, delay }}
       className={className}
     >
       {children}
     </motion.section>
   );
 }
-
 // ============================================================
 // ANIMATED COUNTER
 // ============================================================
@@ -351,7 +400,7 @@ export default function LandingPage() {
             <motion.div
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.8, delay: 0.3 }}
               className="relative"
             >
               {/* Floating ATS Score Badge */}
@@ -589,7 +638,7 @@ export default function LandingPage() {
                           initial={{ width: 0 }}
                           whileInView={{ width: `${bar.value}%` }}
                           viewport={{ once: true }}
-                          transition={{ duration: 1, delay: 0.2 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                          transition={{ duration: 1, delay: 0.2 + i * 0.15 }}
                           className={`h-full rounded-full ${bar.color}`}
                         />
                       </div>

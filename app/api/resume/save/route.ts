@@ -6,30 +6,54 @@ import { prisma } from '@/lib/db';
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    console.log('Session:', session?.user?.id);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!(session?.user as any)?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
-    const { fullName, jobTitle, skills, summary } = await req.json();
+
+    const userId = (session!.user as any).id;
+
+    const {
+      fullName,
+      jobTitle,
+      skills,
+      summary,
+    } = await req.json();
+
     const resume = await prisma.resume.create({
       data: {
-        userId: session.user.id,
+        userId,
         fullName,
         jobTitle,
         skills,
         summary,
       },
     });
+
     await prisma.activityLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: 'CREATE_RESUME',
-        details: JSON.stringify({ resumeId: resume.id, title: fullName }),
+        details: JSON.stringify({
+          resumeId: resume.id,
+          title: fullName,
+        }),
       },
     });
-    return NextResponse.json({ success: true, resume });
+
+    return NextResponse.json({
+      success: true,
+      resume,
+    });
   } catch (error) {
     console.error('Save error:', error);
-    return NextResponse.json({ error: 'Failed to save resume' }, { status: 500 });
+
+    return NextResponse.json(
+      { error: 'Failed to save resume' },
+      { status: 500 }
+    );
   }
 }

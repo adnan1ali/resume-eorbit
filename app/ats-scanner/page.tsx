@@ -388,16 +388,37 @@ export default function ATSScannerPage() {
       const data = await res.json();
 
       // Enrich scan result with derived data
-      const enrichedResult: ScanResult = {
-        atsScore: data.atsScore || 0,
-        readability: data.readability || 0,
-        keywordGap: data.keywordGap || '',
-        recommendations: data.recommendations || [],
-        extractedText: data.extractedText || '',
-        matchedKeywords: data.matchedKeywords || generateMockMatchedKeywords(data.atsScore || 0),
-        missingKeywords: data.missingKeywords || generateMockMissingKeywords(data.keywordGap || ''),
-        sections: data.sections || generateSectionAnalysis(data.extractedText || ''),
-      };
+      const report = data.report;
+
+const enrichedResult: ScanResult = {
+  atsScore: report?.overallScore || 0,
+
+  readability:
+    Math.round(
+      (report?.breakdown?.readability?.score || 0) / 10
+    ) || 0,
+
+  keywordGap:
+    report?.missingKeywords?.length
+      ? report.missingKeywords.join(', ')
+      : '',
+
+  recommendations:
+    report?.recommendations?.map(
+      (r: any) => r.message
+    ) || [],
+
+  extractedText: data.extractedText || '',
+
+  matchedKeywords:
+    report?.matchedKeywords || [],
+
+  missingKeywords:
+    report?.missingKeywords || [],
+
+  sections:
+    report?.detectedSections || [],
+};
 
       setScanResult(enrichedResult);
       setScanState('complete');

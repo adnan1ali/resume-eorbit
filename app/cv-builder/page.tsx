@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -312,9 +312,18 @@ function LivePreview({ data, visible }: { data: ResumeFormData; visible: boolean
 export default function CVBuilderPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const templateId = searchParams.get('template');
-  const imported = searchParams.get('imported');
+
+  // Next.js 16 build-safe replacement
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const [imported, setImported] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setTemplateId(params.get('template'));
+      setImported(params.get('imported'));
+    }
+  }, []);
 
   // State
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
