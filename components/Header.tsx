@@ -1,365 +1,431 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { useTheme } from 'next-themes';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FileText,
-  BarChart3,
-  LayoutDashboard,
-  Layers,
-  Menu,
-  X,
-  Sun,
-  Moon,
-  Monitor,
-  LogOut,
-  User,
-  ChevronDown,
-  Sparkles,
+  Search, Bell, FileText, ArrowUpRight, User,
+  ChevronDown, X, Menu, Sparkles, Crown,
+  PenTool, BarChart3, FileCheck, Upload, Import,
+  Briefcase, GraduationCap, Code, Database, Shield,
+  BookOpen, TrendingUp, Globe, Building2, Users,
+  Mic, DollarSign, MapPin, Brain, Lightbulb,
+  CheckCircle, Star, Layers, Layout
 } from 'lucide-react';
 
-const navLinks = [
-  { href: '/cv-builder', label: 'Build CV', icon: FileText },
-  { href: '/ats-scanner', label: 'ATS Scanner', icon: BarChart3 },
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/templates', label: 'Templates', icon: Layers },
-];
+// ============================================================
+// MEGA MENU DATA
+// ============================================================
+
+const MEGA_MENUS = {
+  resume: {
+    label: 'Resume',
+    columns: [
+      {
+        title: 'Resume Tools',
+        items: [
+          { label: 'AI Resume Builder', href: '/resume-builder', icon: PenTool, description: 'Build ATS-optimized resumes with AI' },
+          { label: 'Resume Checker', href: '/resume-checker', icon: CheckCircle, description: 'Get instant feedback on your resume' },
+          { label: 'ATS Scanner', href: '/ats-scanner', icon: BarChart3, description: 'Check ATS compatibility score' },
+          { label: 'Resume Review', href: '/resume-review', icon: FileCheck, description: 'Expert AI review of your resume' },
+          { label: 'Resume Import', href: '/resume-import', icon: Upload, description: 'Import and enhance existing resumes' },
+        ],
+      },
+      {
+        title: 'Resume Examples',
+        items: [
+          { label: 'Cloud Engineer', href: '/examples/cloud-engineer' },
+          { label: 'IT Support Engineer', href: '/examples/it-support' },
+          { label: 'Data Scientist', href: '/examples/data-scientist' },
+          { label: 'Project Manager', href: '/examples/project-manager' },
+          { label: 'Business Analyst', href: '/examples/business-analyst' },
+          { label: 'DevOps Engineer', href: '/examples/devops-engineer' },
+        ],
+      },
+      {
+        title: 'Resume Templates',
+        items: [
+          { label: 'ATS Friendly', href: '/templates?category=ats' },
+          { label: 'Modern', href: '/templates?category=modern' },
+          { label: 'Executive', href: '/templates?category=executive' },
+          { label: 'Minimal', href: '/templates?category=minimal' },
+          { label: 'Professional', href: '/templates?category=professional' },
+        ],
+      },
+      {
+        title: 'Resume Guides',
+        items: [
+          { label: 'How to Write a Resume', href: '/guides/how-to-write-resume' },
+          { label: 'Resume Summary Guide', href: '/guides/resume-summary' },
+          { label: 'Resume Format Guide', href: '/guides/resume-format' },
+          { label: 'ATS Resume Guide', href: '/guides/ats-resume' },
+        ],
+      },
+    ],
+  },
+  coverLetter: {
+    label: 'Cover Letter',
+    columns: [
+      {
+        title: 'Tools',
+        items: [
+          { label: 'Cover Letter Builder', href: '/cover-letter-builder', icon: PenTool, description: 'Create professional cover letters' },
+          { label: 'AI Cover Letter Generator', href: '/cover-letter-generator', icon: Sparkles, description: 'Generate tailored cover letters with AI' },
+          { label: 'Cover Letter Review', href: '/cover-letter-review', icon: FileCheck, description: 'Get feedback on your cover letter' },
+        ],
+      },
+      {
+        title: 'Examples',
+        items: [
+          { label: 'QA Engineer', href: '/cover-letter-examples/qa-engineer' },
+          { label: 'Data Analyst', href: '/cover-letter-examples/data-analyst' },
+          { label: 'Architect', href: '/cover-letter-examples/architect' },
+          { label: 'Cloud Engineer', href: '/cover-letter-examples/cloud-engineer' },
+        ],
+      },
+      {
+        title: 'Templates',
+        items: [
+          { label: 'Modern', href: '/cover-letter-templates?style=modern' },
+          { label: 'Professional', href: '/cover-letter-templates?style=professional' },
+          { label: 'Executive', href: '/cover-letter-templates?style=executive' },
+        ],
+      },
+      {
+        title: 'Guides',
+        items: [
+          { label: 'How to Write a Cover Letter', href: '/guides/cover-letter' },
+          { label: 'Cover Letter Formats', href: '/guides/cover-letter-formats' },
+          { label: 'Cover Letter Endings', href: '/guides/cover-letter-endings' },
+        ],
+      },
+    ],
+  },
+  resources: {
+    label: 'Resources',
+    columns: [
+      {
+        title: 'Career Resources',
+        items: [
+          { label: 'Resume Resources', href: '/resources/resume', icon: FileText, description: 'Guides, tips, and best practices' },
+          { label: 'Interview Resources', href: '/resources/interview', icon: Mic, description: 'Preparation guides and mock interviews' },
+          { label: 'Career Growth', href: '/resources/career-growth', icon: TrendingUp, description: 'Advance your career trajectory' },
+        ],
+      },
+      {
+        title: 'Research & Insights',
+        items: [
+          { label: 'Career Research', href: '/research', icon: BookOpen, description: 'Data-driven career insights' },
+          { label: 'Salary Insights', href: '/salary-insights', icon: DollarSign, description: 'Compensation benchmarks' },
+          { label: 'Job Market Trends', href: '/job-market', icon: TrendingUp, description: 'Hiring trends and forecasts' },
+        ],
+      },
+      {
+        title: 'Regional Guides',
+        items: [
+          { label: 'Saudi Arabia Career Guides', href: '/guides/saudi-arabia', icon: MapPin },
+          { label: 'GCC Career Resources', href: '/guides/gcc', icon: Globe },
+          { label: 'AI Career Resources', href: '/guides/ai-careers', icon: Brain },
+        ],
+      },
+    ],
+  },
+  organizations: {
+    label: 'For Organizations',
+    columns: [
+      {
+        title: 'Solutions',
+        items: [
+          { label: 'Recruitment Agencies', href: '/organizations/recruitment', icon: Users, description: 'Streamline candidate resume processing' },
+          { label: 'Universities', href: '/organizations/universities', icon: GraduationCap, description: 'Career services for students and alumni' },
+          { label: 'Career Coaches', href: '/organizations/coaches', icon: Lightbulb, description: 'Tools for professional career coaching' },
+          { label: 'Corporate Workforce Development', href: '/organizations/corporate', icon: Building2, description: 'Enterprise career development programs' },
+        ],
+      },
+    ],
+  },
+};
+
+// ============================================================
+// HEADER COMPONENT
+// ============================================================
 
 export function Header() {
-  const pathname = usePathname();
   const { data: session } = useSession();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
-  useEffect(() => setMounted(true), []);
+  // Hide header on dashboard/workspace routes (sidebar takes over)
+  const isWorkspace = pathname?.startsWith('/workspace') || pathname?.startsWith('/app');
+  if (isWorkspace) return null;
 
-  // Track scroll position for header styling
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-    setUserMenuOpen(false);
-  }, [pathname]);
-
-  // Close user menu on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('[data-user-menu]')) {
-        setUserMenuOpen(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  // Lock body scroll when mobile menu is open
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [mobileMenuOpen]);
-
-  const isActive = useCallback(
-    (href: string) => pathname === href || pathname?.startsWith(href + '/'),
-    [pathname]
-  );
-
-  const cycleTheme = () => {
-    if (theme === 'dark') setTheme('light');
-    else if (theme === 'light') setTheme('system');
-    else setTheme('dark');
+  const handleMenuEnter = (key: string) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setActiveMenu(key);
   };
 
-  const ThemeIcon = () => {
-  if (!mounted) {
-    return <Monitor className="h-4 w-4" />;
-  }
-
-  if (theme === 'dark') {
-    return <Moon className="h-4 w-4" />;
-  }
-
-  if (theme === 'light') {
-    return <Sun className="h-4 w-4" />;
-  }
-
-  return <Monitor className="h-4 w-4" />;
-};
+  const handleMenuLeave = () => {
+    timeoutRef.current = setTimeout(() => setActiveMenu(null), 150);
+  };
 
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-          scrolled
-            ? 'bg-white/80 dark:bg-[#030712]/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/40 shadow-sm shadow-slate-200/20 dark:shadow-slate-900/20'
-            : 'bg-white/60 dark:bg-[#030712]/60 backdrop-blur-md border-b border-transparent'
-        }`}
+        ref={headerRef}
+        className="sticky top-0 z-50 bg-white border-b border-slate-200/80"
       >
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group relative z-10 shrink-0">
-              <div className="relative">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/20 transition-all duration-500 group-hover:shadow-indigo-500/40 group-hover:scale-105">
-                  <span className="text-white text-sm font-black tracking-wider">E</span>
-                </div>
-                {/* Animated glow ring on hover */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-30 blur-md transition-opacity duration-500" />
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left: Logo */}
+            <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+              <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <FileText className="h-4 w-4 text-white" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white leading-none">
-                  resume{' '}
-                  <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent font-extrabold">
-                    eOrbit
-                  </span>
-                </span>
-                <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 tracking-wider uppercase leading-none mt-0.5 hidden sm:block">
-                  AI Career Platform
-                </span>
-              </div>
+              <span className="text-base font-bold text-slate-900 hidden sm:block">
+                Resume eOrbit
+              </span>
             </Link>
 
-            {/* Desktop Navigation - Pill Style */}
-            <nav className="hidden lg:flex items-center" aria-label="Main navigation">
-              <div className="flex items-center gap-0.5 bg-slate-100/70 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50 p-1 rounded-full backdrop-blur-sm">
-                {navLinks.map((link) => {
-                  const active = isActive(link.href);
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`relative flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-full transition-all duration-200 ${
-                        active
-                          ? 'text-indigo-600 dark:text-white bg-white dark:bg-slate-800 shadow-sm'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/60'
-                      }`}
-                    >
-                      <link.icon className={`h-3.5 w-3.5 ${active ? 'text-indigo-500' : ''}`} />
-                      {link.label}
-                      {active && (
-                        <motion.div
-                          layoutId="nav-active-indicator"
-                          className="absolute inset-0 rounded-full bg-white dark:bg-slate-800 shadow-sm -z-10"
-                          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                        />
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
+            {/* Center: Navigation */}
+            <nav className="hidden lg:flex items-center gap-1">
+              {Object.entries(MEGA_MENUS).map(([key, menu]) => (
+                <div
+                  key={key}
+                  className="relative"
+                  onMouseEnter={() => handleMenuEnter(key)}
+                  onMouseLeave={handleMenuLeave}
+                >
+                  <button
+                    className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      activeMenu === key
+                        ? 'text-indigo-600 bg-indigo-50'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    {menu.label}
+                    <ChevronDown className={`h-3.5 w-3.5 transition-transform ${activeMenu === key ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+              ))}
+              <Link
+                href="/pricing"
+                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+              >
+                Pricing
+              </Link>
             </nav>
 
-            {/* Right Side Controls */}
-            <div className="flex items-center gap-2 sm:gap-3 relative z-10">
-              {/* Theme Toggle */}
+            {/* Right: Actions */}
+            <div className="flex items-center gap-2">
+              {/* Search */}
               <button
-                onClick={cycleTheme}
-                className="flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all duration-200"
-                aria-label="Toggle theme"
-                title={mounted ? `Current: ${theme}` : 'Toggle theme'}
+                onClick={() => setSearchOpen(true)}
+                className="h-9 w-9 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
-                <ThemeIcon />
+                <Search className="h-4 w-4" />
               </button>
 
-              {/* User Menu / Auth */}
               {session ? (
-                <div className="relative" data-user-menu>
-                  <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center gap-2 h-9 pl-1.5 pr-3 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all duration-200"
-                  >
-                    <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shadow-sm">
-                      {session.user?.name?.[0]?.toUpperCase() || session.user?.email?.[0]?.toUpperCase() || 'U'}
-                    </div>
-                    <span className="hidden sm:inline text-xs font-semibold text-slate-700 dark:text-slate-300 max-w-[100px] truncate">
-                      {session.user?.name || session.user?.email?.split('@')[0]}
-                    </span>
-                    <ChevronDown className={`h-3 w-3 text-slate-400 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
+                <>
+                  {/* Notifications */}
+                  <button className="h-9 w-9 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors relative">
+                    <Bell className="h-4 w-4" />
+                    <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-indigo-600 rounded-full" />
                   </button>
 
-                  {/* Dropdown */}
-                  <AnimatePresence>
-                    {userMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/40 dark:shadow-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 overflow-hidden"
-                      >
-                        {/* User Info */}
-                        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                          <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
-                            {session.user?.name || 'User'}
-                          </p>
-                          <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
-                            {session.user?.email}
-                          </p>
-                        </div>
+                  {/* My Documents */}
+                  <Link
+                    href="/workspace"
+                    className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    <Layout className="h-3.5 w-3.5" />
+                    <span>My Documents</span>
+                  </Link>
 
-                        {/* Menu Items */}
-                        <div className="py-1.5">
-                          <Link
-                            href="/dashboard"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                          >
-                            <LayoutDashboard className="h-3.5 w-3.5" />
-                            My Dashboard
-                          </Link>
-                          <Link
-                            href="/cv-builder"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                          >
-                            <FileText className="h-3.5 w-3.5" />
-                            My Resumes
-                          </Link>
-                        </div>
+                  {/* Upgrade */}
+                  <Link
+                    href="/pricing"
+                    className="hidden md:flex items-center gap-1.5 h-9 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                  >
+                    <Crown className="h-3.5 w-3.5" />
+                    <span>Upgrade</span>
+                  </Link>
 
-                        {/* Sign Out */}
-                        <div className="border-t border-slate-100 dark:border-slate-800 py-1.5">
-                          <button
-                            onClick={() => signOut()}
-                            className="flex items-center gap-2.5 w-full px-4 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/5 transition-colors"
-                          >
-                            <LogOut className="h-3.5 w-3.5" />
-                            Sign Out
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                  {/* Profile */}
+                  <button
+                    onClick={() => signOut()}
+                    className="h-9 w-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                  </button>
+                </>
               ) : (
-                <div className="flex items-center gap-2">
+                <>
                   <Link
                     href="/login"
-                    className="hidden sm:flex items-center text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-lg transition-colors duration-200"
+                    className="hidden sm:block text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2"
                   >
-                    Sign in
+                    Sign In
                   </Link>
                   <Link
                     href="/register"
-                    className="flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-4 py-2 rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-200"
+                    className="flex items-center gap-1.5 h-9 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
                   >
-                    <Sparkles className="h-3 w-3" />
                     Get Started
                   </Link>
-                </div>
+                </>
               )}
 
               {/* Mobile Menu Toggle */}
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="flex lg:hidden items-center justify-center h-9 w-9 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-all duration-200"
-                aria-label="Toggle mobile menu"
-                aria-expanded={mobileMenuOpen}
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="lg:hidden h-9 w-9 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"
               >
-                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </div>
           </div>
         </div>
+
+        {/* ============ MEGA MENU DROPDOWN ============ */}
+        {activeMenu && MEGA_MENUS[activeMenu as keyof typeof MEGA_MENUS] && (
+          <div
+            className="absolute left-0 right-0 bg-white border-b border-slate-200 shadow-lg shadow-slate-200/50"
+            onMouseEnter={() => handleMenuEnter(activeMenu)}
+            onMouseLeave={handleMenuLeave}
+          >
+            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className={`grid gap-8 ${
+                MEGA_MENUS[activeMenu as keyof typeof MEGA_MENUS].columns.length === 1
+                  ? 'grid-cols-1 max-w-lg'
+                  : MEGA_MENUS[activeMenu as keyof typeof MEGA_MENUS].columns.length === 3
+                  ? 'grid-cols-3'
+                  : 'grid-cols-4'
+              }`}>
+                {MEGA_MENUS[activeMenu as keyof typeof MEGA_MENUS].columns.map((column, colIdx) => (
+                  <div key={colIdx}>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                      {column.title}
+                    </h3>
+                    <ul className="space-y-1">
+                      {column.items.map((item, itemIdx) => (
+                        <li key={itemIdx}>
+                          <Link
+                            href={item.href}
+                            className="group flex items-start gap-3 p-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors"
+                            onClick={() => setActiveMenu(null)}
+                          >
+                           {'icon' in item && item.icon ? (
+  <div className="h-8 w-8 rounded-lg bg-slate-100 group-hover:bg-indigo-50 flex items-center justify-center">
+    <item.icon className="h-4 w-4 text-slate-500 group-hover:text-indigo-600" />
+  </div>
+) : null}
+                            <div>
+                              <p className="text-sm font-medium text-slate-700 group-hover:text-indigo-600 transition-colors">
+                                {item.label}
+                              </p>
+                              {('description' in item && item.description) && (
+                                <p className="text-xs text-slate-400 mt-0.5">{item.description}</p>
+                              )}
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Mobile Navigation Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-slate-900/20 dark:bg-black/40 backdrop-blur-sm lg:hidden"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-
-            {/* Mobile Menu Panel */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              className="fixed top-16 left-0 right-0 z-50 lg:hidden bg-white dark:bg-[#0a0f1a] border-b border-slate-200/60 dark:border-slate-800/60 shadow-xl shadow-slate-200/20 dark:shadow-slate-900/40"
-            >
-              <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-4">
-                {/* Navigation Links */}
-                <nav className="space-y-1" aria-label="Mobile navigation">
-                  {navLinks.map((link, index) => {
-                    const active = isActive(link.href);
-                    return (
-                      <motion.div
-                        key={link.href}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
+      {/* ============ MOBILE MENU ============ */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-slate-900/20" onClick={() => setMobileOpen(false)} />
+          <div className="absolute top-16 left-0 right-0 bg-white border-b border-slate-200 shadow-xl max-h-[80vh] overflow-y-auto">
+            <div className="p-4 space-y-4">
+              {Object.entries(MEGA_MENUS).map(([key, menu]) => (
+                <div key={key} className="border-b border-slate-100 pb-4">
+                  <p className="text-sm font-bold text-slate-900 mb-2">{menu.label}</p>
+                  <div className="space-y-1">
+                    {menu.columns.map((col) =>
+                      col.items.slice(0, 4).map((item, idx) => (
                         <Link
-                          href={link.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                            active
-                              ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20'
-                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                          }`}
+                          key={idx}
+                          href={item.href}
+                          className="block text-sm text-slate-600 py-1.5 hover:text-indigo-600"
+                          onClick={() => setMobileOpen(false)}
                         >
-                          <link.icon className={`h-4 w-4 ${active ? 'text-indigo-500' : 'text-slate-400'}`} />
-                          {link.label}
-                          {active && (
-                            <span className="ml-auto text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-100 dark:bg-indigo-500/20 px-2 py-0.5 rounded-md">
-                              Active
-                            </span>
-                          )}
+                          {item.label}
                         </Link>
-                      </motion.div>
-                    );
-                  })}
-                </nav>
-
-                {/* Mobile Auth Actions */}
-                {!session && (
-                  <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                    >
-                      Sign in
-                    </Link>
-                    <Link
-                      href="/register"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-md shadow-indigo-500/20"
-                    >
-                      <Sparkles className="h-3.5 w-3.5" />
-                      Get Started Free
-                    </Link>
+                      ))
+                    )}
                   </div>
-                )}
+                </div>
+              ))}
+              <Link
+                href="/pricing"
+                className="block text-sm font-bold text-slate-900 py-2"
+                onClick={() => setMobileOpen(false)}
+              >
+                Pricing
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ SEARCH OVERLAY ============ */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24">
+          <div className="absolute inset-0 bg-slate-900/30" onClick={() => setSearchOpen(false)} />
+          <div className="relative w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="flex items-center gap-3 p-4 border-b border-slate-100">
+              <Search className="h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search templates, guides, examples..."
+                className="flex-1 text-base text-slate-900 placeholder:text-slate-400 outline-none"
+                autoFocus
+              />
+              <button
+                onClick={() => setSearchOpen(false)}
+                className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded"
+              >
+                ESC
+              </button>
+            </div>
+            <div className="p-4">
+              <p className="text-xs font-medium text-slate-400 mb-2">Quick Links</p>
+              <div className="space-y-1">
+                {[
+                  { label: 'AI Resume Builder', href: '/resume-builder' },
+                  { label: 'ATS Scanner', href: '/ats-scanner' },
+                  { label: 'Cover Letter Generator', href: '/cover-letter-generator' },
+                  { label: 'Resume Templates', href: '/templates' },
+                ].map((link, idx) => (
+                  <Link
+                    key={idx}
+                    href={link.href}
+                    className="flex items-center gap-2 p-2 rounded-lg text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                    onClick={() => setSearchOpen(false)}
+                  >
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                    {link.label}
+                  </Link>
+                ))}
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
