@@ -48,7 +48,7 @@ export default function DashboardPage() {
       try {
         const res = await fetch('/api/resume/list?limit=6&sortBy=updatedAt&sortOrder=desc');
         const data = await res.json();
-        setResumes(data.data || []);
+setResumes(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Failed to fetch resumes:', error);
       } finally {
@@ -159,20 +159,23 @@ export default function DashboardPage() {
                 className="group bg-white dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 hover:-translate-y-0.5 transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="h-9 w-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
-                    <FileText className="h-4 w-4 text-indigo-500" />
-                  </div>
-                  {resume.atsScore !== null && (
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${
-                      resume.atsScore >= 80
-                        ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600'
-                        : resume.atsScore >= 60
-                        ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'
-                        : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600'
-                    }`}>
-                      ATS: {resume.atsScore}%
-                    </span>
-                  )}
+  <div className="h-9 w-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
+    <FileText className="h-4 w-4 text-indigo-500" />
+  </div>
+
+  <span
+    className={`text-[10px] font-bold px-2 py-1 rounded-lg ${
+      resume.atsScore
+        ? resume.atsScore >= 80
+          ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600'
+          : resume.atsScore >= 60
+          ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'
+          : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600'
+        : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+}`}
+>
+  ATS: {resume.atsScore ? `${resume.atsScore}%` : 'Not Scanned'}
+</span>
                 </div>
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white truncate">{resume.fullName || 'Untitled'}</h3>
                 <p className="text-[10px] text-slate-500 truncate mt-0.5">{resume.jobTitle || 'No job title'}</p>
